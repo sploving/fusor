@@ -38,11 +38,8 @@ namespace {
         bool runOnFunction(Function &F) override {
 	  Module& M = *(F.getParent());
           LLVMContext& context = M.getContext(); 
-          const DataLayout& DL = M.getDataLayout();
-	  //const ArrayRef<unsigned> strs = DL.getNonIntegralAddressSpaces();
-	  //const string strdata = strs.front();
-	  const string strdata = DL.getPrivateGlobalPrefix();
-	  errs() << "data layout info:" << strdata << '\n';
+	  for(auto &global : M.getGlobalList())
+	      errs() << "data layout info:" << global << '\n';
           return True;
         }
     };
