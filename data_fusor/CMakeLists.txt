@@ -1,6 +1,6 @@
-add_library(TemplatePass MODULE
+add_library(EncodingPass MODULE
     # List your source files here.
-        template.cpp)
+        encodingpass.cpp)
 
 # Use C++11 to compile our pass (i.e., supply -std=c++11).
 target_compile_features(FusorPass PRIVATE cxx_range_for cxx_auto_type)
