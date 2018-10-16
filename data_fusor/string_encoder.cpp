@@ -28,15 +28,17 @@ using namespace llvm;
 
 cl::opt<uint8_t> POOL_SIZE("array_size", cl::desc("Obfuscation fusor's size"), cl::init(64));
 
-
 namespace {
-    struct ArrayPass : public FunctionPass {
+    struct EncodingPass : public ModulePass {
         static char ID;
 
-        ArrayPass() : FunctionPass(ID) {}
+        EncodingPass() : FunctionPass(ID) {}
 
-        bool runOnFunction(Function &F) override {
-          
+        bool runOnModule(Module &M) override {
+          LLVMContext& context = M.getContext(); 
+          const string strdata = M->getDataLayoutStr();
+          //const DataLayout datalayout = M->getDataLayout();
+	  cout << "data layout info:" << strdata << endl;
           return True;
         }
     };
