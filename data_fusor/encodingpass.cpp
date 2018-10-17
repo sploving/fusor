@@ -30,16 +30,27 @@ using namespace llvm;
 //cl::opt<uint8_t> POOL_SIZE("array_size", cl::desc("Obfuscation fusor's size"), cl::init(64));
 
 namespace {
+    //struct EncodingPass : public ModulePass { //FIXME: runOnMudule crashes, but this should be better.
     struct EncodingPass : public FunctionPass {
         static char ID;
 
+        //EncodingPass() : ModulePass(ID) {} //FIXME
         EncodingPass() : FunctionPass(ID) {}
 
+        //bool runOnModule(Module &M) { //FIXME
         bool runOnFunction(Function &F) override {
 	  Module& M = *(F.getParent());
           LLVMContext& context = M.getContext(); 
-	  for(auto &global : M.getGlobalList())
-	      errs() << "data layout info:" << global << '\n';
+	  for(auto &iter : M.getGlobalList()){
+	      if(iter.hasInitializer()){
+		  if(ConstantDataArray* data = dyn_cast<ConstantDataArray> (iter.getInitializer())){
+		      if(data->isString()){
+		          StringRef str = data->getAsString();
+	                  errs() << str <<"\n";
+		      }
+		  }
+	      }
+	  }
           return True;
         }
     };
