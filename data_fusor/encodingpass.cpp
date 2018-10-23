@@ -11,7 +11,11 @@
 #include "llvm/Transforms/IPO/PassManagerBuilder.h"
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
 #include "llvm/IR/CallSite.h"
+#include "llvm/IR/Type.h"
+#include "llvm/IR/TypeBuilder.h"
 #include "llvm/Support/CommandLine.h"
+#include "../fusor/func_searcher.hpp"
+#include "../fusor/utils.hpp"
 #include <algorithm>
 #include <random>
 #include <chrono>
@@ -20,12 +24,6 @@
 
 using namespace std;
 using namespace llvm;
-
-#define True true
-#define False false // For Python lovers!
-#define IN_SET(ELEM, SET) (SET.find(ELEM) != SET.end())  // STL sucks!!!
-#define IN_MAP(KEY, MAP) (MAP.find(KEY) != MAP.end())    // STL sucks!!!
-#define ISINSTANCE(OBJ_P, CLASS) (dyn_cast<CLASS>(OBJ_P))  // C++ sucks!!!
 
 //cl::opt<uint8_t> POOL_SIZE("array_size", cl::desc("Obfuscation fusor's size"), cl::init(64));
 
@@ -46,12 +44,16 @@ namespace {
 	      EncodeGlobals(M);
 	      hasEncoded = true;
 	  }
-          return True;
+          return true;
         }
         void EncodeGlobals(Module& M){
+	  vector<Constant *> insts;
+	  Value* idx[2] = {ConstantInt::get(i8,0), nullptr};
 	  for(auto &iter : M.getGlobalList()){
 	    if(iter.hasInitializer()){		
 	      if(ConstantDataArray* data = dyn_cast<ConstantDataArray> (iter.getInitializer())){
+		Instruction* inst = GetElementPtrInst::CreateInBounds(data, ArrayRef<Value*>(idx,2), "fusor");
+		insts.emplace_back(dyn_cast<Constant> (inst));
 		if(data->isString()){
 	    	  errs() << data->getAsString() << "\n";
 		}
@@ -61,7 +63,13 @@ namespace {
 	      }
 	    }
 	  }
+	  int size = M.getGlobalList().size();
+	  ArrayType* atype = ArrayType::get(i8p, size);
+	  Constant* elements = ConstantArray::get(atype, insts);
+	  auto* array = new GlobalVariable(M, (Type *) atype, true, GlobalValue::InternalLinkage, elements, "fusor");
 	}
+        Type *i8 = Type::getInt8Ty(getGlobalContext());
+        Type *i8p = Type::getInt8PtrTy(getGlobalContext());
     };
 }
 
