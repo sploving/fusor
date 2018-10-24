@@ -39,7 +39,6 @@ build/
 
 # Assembly
 *.s
-*.ll
 *.bc
 
 # CFG
