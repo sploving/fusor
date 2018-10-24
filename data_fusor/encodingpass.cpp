@@ -12,6 +12,7 @@
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
 #include "llvm/IR/CallSite.h"
 #include "llvm/IR/Type.h"
+#include "llvm/IR/Constants.h"
 #include "llvm/IR/TypeBuilder.h"
 #include "llvm/Support/CommandLine.h"
 #include "../fusor/func_searcher.hpp"
@@ -47,29 +48,32 @@ namespace {
           return true;
         }
         void EncodeGlobals(Module& M){
-	  vector<Constant *> insts;
-	  Value* idx[2] = {ConstantInt::get(i8,0), nullptr};
+	  vector<Constant*> elemptrs;
+	  Value* idx[2] = {ConstantInt::get(i32,0), ConstantInt::get(i32,0)};
+	  int size = 0;
 	  for(auto &iter : M.getGlobalList()){
 	    if(iter.hasInitializer()){		
 	      if(ConstantDataArray* data = dyn_cast<ConstantDataArray> (iter.getInitializer())){
-		Instruction* inst = GetElementPtrInst::CreateInBounds(data, ArrayRef<Value*>(idx,2), "fusor");
-		insts.emplace_back(dyn_cast<Constant> (inst));
+		Constant* ptr = ConstantExpr::getInBoundsGetElementPtr(i8, data, ArrayRef<Value *>(idx,2));
+		elemptrs.emplace_back(ptr);
 		if(data->isString()){
 	    	  errs() << data->getAsString() << "\n";
 		}
 	    	for(auto use : iter.users()){
 	 	  errs() << *use << "\n";
 		}
+		size ++;
 	      }
 	    }
 	  }
-	  int size = M.getGlobalList().size();
+	  errs() << "# of Global Strings: " << size << "\n";
 	  ArrayType* atype = ArrayType::get(i8p, size);
-	  Constant* elements = ConstantArray::get(atype, insts);
-	  auto* array = new GlobalVariable(M, (Type *) atype, true, GlobalValue::InternalLinkage, elements, "fusor");
+	  Constant* elements = ConstantArray::get(atype, ArrayRef<Constant*> (elemptrs));
+	  auto* array = new GlobalVariable(M, (Type *) atype, true, GlobalValue::InternalLinkage, elements, "fusor_strs");
 	}
         Type *i8 = Type::getInt8Ty(getGlobalContext());
         Type *i8p = Type::getInt8PtrTy(getGlobalContext());
+        Type *i32 = Type::getInt32Ty(getGlobalContext());
     };
 }
 
