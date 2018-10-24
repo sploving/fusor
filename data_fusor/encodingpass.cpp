@@ -54,22 +54,22 @@ namespace {
 	  for(auto &iter : M.getGlobalList()){
 	    if(iter.hasInitializer()){		
 	      if(ConstantDataArray* data = dyn_cast<ConstantDataArray> (iter.getInitializer())){
-		Constant* ptr = ConstantExpr::getInBoundsGetElementPtr(i8, data, ArrayRef<Value *>(idx,2));
-		elemptrs.emplace_back(ptr);
 		if(data->isString()){
+		  Constant* ptr = ConstantExpr::getInBoundsGetElementPtr(data->getType(), &iter, ArrayRef<Value *>(idx,2));
+		  elemptrs.emplace_back(ptr);
 	    	  errs() << data->getAsString() << "\n";
+	    	  for(auto use : iter.users()){
+	 	    errs() << *use << "\n";
+		  }
+		  size ++;
 		}
-	    	for(auto use : iter.users()){
-	 	  errs() << *use << "\n";
-		}
-		size ++;
 	      }
 	    }
 	  }
 	  errs() << "# of Global Strings: " << size << "\n";
 	  ArrayType* atype = ArrayType::get(i8p, size);
 	  Constant* elements = ConstantArray::get(atype, ArrayRef<Constant*> (elemptrs));
-	  auto* array = new GlobalVariable(M, (Type *) atype, true, GlobalValue::InternalLinkage, elements, "fusor_strs");
+	  auto* array = new GlobalVariable(M, (Type *) atype, false, GlobalValue::ExternalLinkage, elements, "fusor_strs");
 	}
         Type *i8 = Type::getInt8Ty(getGlobalContext());
         Type *i8p = Type::getInt8PtrTy(getGlobalContext());
