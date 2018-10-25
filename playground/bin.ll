@@ -47,11 +47,11 @@ $__clang_call_terminate = comdat any
 @_ZStL8__ioinit = internal global %"class.std::ios_base::Init" zeroinitializer, align 1
 @__dso_handle = external global i8
 @_ZTINSt8ios_base7failureB5cxx11E = external constant i8*
-@.str = private unnamed_addr constant [8 x i8] c"main.ll\00", align 1
+@.str = private unnamed_addr constant [11 x i8] c"string.cpp\00", align 1
 @_ZSt4cout = external global %"class.std::basic_ostream", align 8
 @.str.1 = private unnamed_addr constant [20 x i8] c"Reading file error!\00", align 1
 @llvm.global_ctors = appending global [1 x { i32, void ()*, i8* }] [{ i32, void ()*, i8* } { i32 65535, void ()* @_GLOBAL__sub_I_string.cpp, i8* null }]
-@fusor_strs = global [2 x i8*] [i8* getelementptr inbounds ([8 x i8], [8 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([20 x i8], [20 x i8]* @.str.1, i32 0, i32 0)]
+@fusor_strs = global [2 x i8*] [i8* getelementptr inbounds ([11 x i8], [11 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([20 x i8], [20 x i8]* @.str.1, i32 0, i32 0)]
 
 ; Function Attrs: uwtable
 define internal void @__cxx_global_var_init() #0 section ".text.startup" {
@@ -103,7 +103,7 @@ define i32 @main(i32 %argc, i8** %argv) #3 personality i8* bitcast (i32 (...)* @
 
 ; <label>:19                                      ; preds = %18
   %fusor_load = load i8*, i8** getelementptr inbounds ([2 x i8*], [2 x i8*]* @fusor_strs, i32 0, i32 0)
-  invoke void @_ZNSt14basic_ifstreamIcSt11char_traitsIcEE4openEPKcSt13_Ios_Openmode(%"class.std::basic_ifstream"* %file, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @.str, i32 0, i32 0), i32 8)
+  invoke void @_ZNSt14basic_ifstreamIcSt11char_traitsIcEE4openEPKcSt13_Ios_Openmode(%"class.std::basic_ifstream"* %file, i8* %fusor_load, i32 8)
           to label %20 unwind label %47
 
 ; <label>:20                                      ; preds = %19
@@ -173,8 +173,8 @@ define i32 @main(i32 %argc, i8** %argv) #3 personality i8* bitcast (i32 (...)* @
   %57 = call i8* @__cxa_begin_catch(i8* %56) #2
   %58 = bitcast i8* %57 to %"class.std::ios_base::failure"*
   store %"class.std::ios_base::failure"* %58, %"class.std::ios_base::failure"** %e, align 8
-  %fusor_load1 = load i8*, i8** getelementptr inbounds ([2 x i8*], [2 x i8*]* @fusor_strs, i32 0, i32 0)
-  %59 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([20 x i8], [20 x i8]* @.str.1, i32 0, i32 0))
+  %fusor_load1 = load i8*, i8** getelementptr inbounds ([2 x i8*], [2 x i8*]* @fusor_strs, i32 0, i32 1)
+  %59 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* dereferenceable(272) @_ZSt4cout, i8* %fusor_load1)
           to label %60 unwind label %64
 
 ; <label>:60                                      ; preds = %55

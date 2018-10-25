@@ -70,8 +70,8 @@ namespace {
 	  Constant* elements = ConstantArray::get(atype, ArrayRef<Constant*> (elemptrs));
 	  auto* array = new GlobalVariable(M, (Type *) atype, false, GlobalValue::ExternalLinkage, elements, "fusor_strs");
 
+	  int offset = 0;
 	  for(auto &gv : gvs){
-	    int offset = 0;
 	    Value* idx_dyn[2] = {ConstantInt::get(i32,0), ConstantInt::get(i32,offset)};
 	    bool hasInserted = false;
 	    for(auto user : gv->users()){
@@ -83,9 +83,9 @@ namespace {
 		  if(insertBefore){
 	            errs() << "User:" << *insertBefore << "\n";
 	            inst = new LoadInst(ConstantExpr::getInBoundsGetElementPtr(atype, array, ArrayRef<Value*>(idx_dyn)),"fusor_load",insertBefore); 
+		    insertBefore->replaceUsesOfWith(user, inst);
 	            hasInserted = true;
 		  } 
-		  user = dyn_cast<User>(inst);
 	      }
 	    }
 	    offset++;

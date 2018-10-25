@@ -6,7 +6,7 @@ int main(int argc, char** argv){
      ifstream file;
      file.exceptions ( ifstream::eofbit | ifstream::failbit | ifstream::badbit);
      try{
-           file.open("main.ll");
+           file.open("string.cpp");
            char buf[256];
            while (file.getline(buf,100)) 
 		cout << buf << endl;
